@@ -1,0 +1,47 @@
+{
+  "name": "auto-news-seo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "setup-db": "npx tsx scripts/setup-db.ts",
+    "setup-sqlite": "npx tsx scripts/setup-sqlite.ts",
+    "setup-neon": "npx tsx scripts/setup-neon.ts",
+    "fetch-news": "npx tsx scripts/fetch-news.ts",
+    "fetch-news-simple": "npx tsx scripts/fetch-news-simple.ts",
+    "test-db": "npx tsx scripts/test-db.ts"
+  },
+  "dependencies": {
+    "next": "14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "mysql2": "^3.9.1",
+    "@neondatabase/serverless": "^0.9.0",
+    "node-cron": "^3.0.3",
+    "cheerio": "^1.0.0-rc.12",
+    "node-fetch": "^3.3.2",
+    "slugify": "^1.6.6",
+    "date-fns": "^3.3.1",
+    "@vercel/analytics": "^1.2.0",
+    "next-sitemap": "^4.2.3",
+    "he": "^1.2.0",
+    "striptags": "^3.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.5",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@types/node-cron": "^3.0.11",
+    "@types/he": "^1.2.3",
+    "ts-node": "^10.9.2",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "14.1.0"
+  }
+}
