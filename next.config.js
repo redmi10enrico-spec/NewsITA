@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['node-cron', 'cheerio']
-  },
+  serverExternalPackages: ['node-cron', 'cheerio'],
   images: {
     remotePatterns: [
       {

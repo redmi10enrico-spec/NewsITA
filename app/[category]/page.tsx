@@ -1,16 +1,16 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getArticlesByCategory } from '@/lib/db/mock';
+import { getArticlesByCategory } from '@/lib/db/neon';
 import { ArticleCard } from '@/components/home/ArticleCard';
 import { CATEGORIES, Category } from '@/types';
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     category: string;
-  };
+  }>;
 }
 
-const categoryNames: Record<Category, string> = {
+const categoryNames: Record<Category, string> & { [key: string]: string | undefined } = {
   'tecnologia': 'Tecnologia',
   'intelligenza-artificiale': 'Intelligenza Artificiale',
   'business-finanza': 'Business & Finanza',
@@ -20,7 +20,7 @@ const categoryNames: Record<Category, string> = {
   'sport': 'Sport',
 };
 
-const categoryDescriptions: Record<Category, string> = {
+const categoryDescriptions: Record<Category, string> & { [key: string]: string | undefined } = {
   'tecnologia': 'Ultime notizie su tecnologia, innovazione, software e hardware. Scopri le novità dal mondo tech.',
   'intelligenza-artificiale': 'Notizie su AI, machine learning, deep learning e chatbot. Il futuro dell\'intelligenza artificiale.',
   'business-finanza': 'News su economia, mercati finanziari, aziende e imprenditoria. Analisi e trend di business.',
@@ -31,7 +31,7 @@ const categoryDescriptions: Record<Category, string> = {
 };
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const category = params.category as Category;
+  const { category } = await params;
   
   if (!categoryNames[category]) {
     return {
@@ -57,14 +57,14 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const category = params.category as Category;
+  const { category } = await params;
 
   if (!categoryNames[category]) {
     notFound();
   }
 
   const categoryData = CATEGORIES.find(c => c.id === category);
-  const articles = await getArticlesByCategory(category, 24);
+  const articles = await getArticlesByCategory(category as Category, 24);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

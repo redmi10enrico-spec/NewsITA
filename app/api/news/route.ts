@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchAllCategoriesNews } from '@/lib/news/fetcher';
-import { getLatestArticles, getAllArticles, getArticlesCount } from '@/lib/db/mock';
+import { getLatestArticles, getAllArticles, getArticlesCount } from '@/lib/db/neon';
+import { Article } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,14 +10,14 @@ let lastFetchTime = 0;
 const MIN_FETCH_INTERVAL = 30 * 1000; // 30 seconds between API calls
 
 async function ensureEnoughArticles(minCount: number) {
-  const currentCount = getArticlesCount();
+  const currentCount = await getArticlesCount();
   
   if (currentCount < minCount) {
     const now = Date.now();
     const timeSinceLastFetch = now - lastFetchTime;
     
     if (timeSinceLastFetch >= MIN_FETCH_INTERVAL) {
-      console.log(`Database has ${currentCount} articles, fetching more...`);
+      console.log(`Database has ${await currentCount} articles, fetching more...`);
       lastFetchTime = now;
       // Fetch more articles per category to fill up the database
       await fetchAllCategoriesNews(10, true); // 10 per category = ~70 articles
@@ -46,7 +47,7 @@ export async function GET(request: Request) {
     await ensureEnoughArticles(minArticlesNeeded);
     
     // Get all articles from database sorted by date
-    const allArticles = getAllArticles().sort((a, b) => 
+    const allArticles = (await getAllArticles()).sort((a: Article, b: Article) => 
       new Date(b.published_at).getTime() - new Date(a.published_at).getTime()
     );
     

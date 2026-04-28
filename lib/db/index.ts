@@ -9,4 +9,4 @@ export {
   articleExists,
   getAllArticles,
   getArticlesCount,
-} from './neon.js';
+} from './neon';

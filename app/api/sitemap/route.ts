@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getLatestArticles, getAllArticles } from '@/lib/db/mysql';
+import { getLatestArticles, getAllArticles } from '@/lib/db/neon';
 import { CATEGORIES } from '@/types';
 
 export async function GET() {

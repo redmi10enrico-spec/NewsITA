@@ -3,7 +3,7 @@ dotenv.config({ path: '.env.local' });
 
 import { fetchAllCategoriesNews } from '../lib/news/fetcher.js';
 import { processArticle } from '../lib/ai/rewriter.js';
-import { createArticle, articleExists } from '../lib/db/mock.js';
+import { createArticle, articleExists } from '../lib/db/neon.js';
 
 async function runNewsFetch() {
   console.log('=== Starting Manual News Fetch ===\n');
@@ -68,7 +68,7 @@ async function runNewsFetch() {
           source_url: processed.sourceUrl,
           source_name: processed.sourceName,
           image_url: processed.imageUrl,
-          featured: false,
+          is_featured: false,
         });
 
         if (article) {

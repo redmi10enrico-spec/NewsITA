@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
           source_url: processed.sourceUrl,
           source_name: processed.sourceName,
           image_url: processed.imageUrl,
-          featured: false,
+          is_featured: false,
         });
 
         if (article) {

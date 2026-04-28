@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchNewsForCategory } from '@/lib/news/fetcher';
 import { processArticle } from '@/lib/ai/rewriter';
-import { createArticle, articleExists } from '@/lib/db/mysql';
+import { createArticle, articleExists } from '@/lib/db/neon';
 import { Category } from '@/types';
 
 export async function GET(request: NextRequest) {
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
           source_url: processed.sourceUrl,
           source_name: processed.sourceName,
           image_url: processed.imageUrl,
-          featured: false,
+          is_featured: false,
         });
 
         if (article) {

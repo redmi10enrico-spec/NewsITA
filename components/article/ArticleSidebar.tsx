@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getArticlesByCategory } from '@/lib/db/mock';
+import { getArticlesByCategory } from '@/lib/db/neon';
 import { Category, CATEGORIES } from '@/types';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';

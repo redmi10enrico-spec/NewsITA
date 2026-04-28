@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getArticleBySlug, incrementViews } from '@/lib/db/mock';
+import { getArticleBySlug, incrementViews } from '@/lib/db/neon';
 import { fetchFullArticle } from '@/lib/news/scraper';
 import { generateArticleStructuredData, generateBreadcrumbStructuredData } from '@/lib/seo/generator';
 import { ArticleContent } from '@/components/article/ArticleContent';
@@ -8,13 +8,14 @@ import { ArticleSidebar } from '@/components/article/ArticleSidebar';
 import { Category } from '@/types';
 
 interface ArticlePageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
-  const article = await getArticleBySlug(params.slug);
+  const { slug } = await params;
+  const article = await getArticleBySlug(slug);
   
   if (!article) {
     return {
@@ -58,7 +59,8 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
-  const article = await getArticleBySlug(params.slug);
+  const { slug } = await params;
+  const article = await getArticleBySlug(slug);
 
   if (!article) {
     notFound();

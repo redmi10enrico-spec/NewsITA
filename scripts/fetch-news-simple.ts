@@ -2,7 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 import { fetchAllCategoriesNews } from '../lib/news/fetcher.js';
-import { createArticle, articleExists } from '../lib/db/mock.js';
+import { createArticle, articleExists } from '../lib/db/neon.js';
+import { Category } from '../types';
 import slugify from 'slugify';
 
 function generateSlug(title: string): string {
@@ -66,7 +67,7 @@ async function runSimpleNewsFetch() {
           title: newsItem.title,
           content: content + '\n\n(Tratto da: ' + newsItem.sourceName + ')',
           excerpt: newsItem.description || content.substring(0, 200) + '...',
-          category: category,
+          category: category as Category,
           slug: slug,
           published_at: newsItem.publishedAt,
           meta_title: newsItem.title + ' | NewsITA',
@@ -75,7 +76,7 @@ async function runSimpleNewsFetch() {
           source_url: newsItem.url,
           source_name: newsItem.sourceName,
           image_url: newsItem.imageUrl,
-          featured: false,
+          is_featured: false,
         });
 
         if (article) {
