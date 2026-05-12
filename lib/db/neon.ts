@@ -1,15 +1,27 @@
 import { neon } from '@neondatabase/serverless';
 import { Article, Category } from '@/types';
 
-const sql = neon(process.env.DATABASE_URL || '');
+// Lazy initialization - only create connection when actually needed
+let sql: ReturnType<typeof neon> | null = null;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('Missing DATABASE_URL environment variable');
+function getDatabase() {
+  if (!sql) {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error('Missing DATABASE_URL environment variable');
+    }
+    sql = neon(databaseUrl);
+  }
+  return sql;
 }
+
+// Type helper for Neon query results
+type QueryResult<T = any> = T[];
 
 export async function createArticle(article: Partial<Article>): Promise<Article | null> {
   try {
-    const result = await sql`
+    const db = getDatabase();
+    const result = await db`
       INSERT INTO articles (
         title, content, excerpt, category, slug,
         meta_title, meta_description, keywords,
@@ -32,7 +44,7 @@ export async function createArticle(article: Partial<Article>): Promise<Article 
         ${article.published_at || new Date().toISOString()}
       )
       RETURNING *
-    `;
+    ` as QueryResult;
     
     return result[0] ? formatArticle(result[0]) : null;
   } catch (error) {
@@ -43,7 +55,8 @@ export async function createArticle(article: Partial<Article>): Promise<Article 
 
 export async function getArticleById(id: number | string): Promise<Article | null> {
   try {
-    const result = await sql`SELECT * FROM articles WHERE id = ${id}`;
+    const db = getDatabase();
+    const result = await db`SELECT * FROM articles WHERE id = ${id}` as QueryResult;
     return result[0] ? formatArticle(result[0]) : null;
   } catch (error) {
     console.error('Error getting article:', error);
@@ -53,7 +66,8 @@ export async function getArticleById(id: number | string): Promise<Article | nul
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   try {
-    const result = await sql`SELECT * FROM articles WHERE slug = ${slug}`;
+    const db = getDatabase();
+    const result = await db`SELECT * FROM articles WHERE slug = ${slug}` as QueryResult;
     return result[0] ? formatArticle(result[0]) : null;
   } catch (error) {
     console.error('Error getting article by slug:', error);
@@ -63,11 +77,12 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 
 export async function getLatestArticles(limit = 10): Promise<Article[]> {
   try {
-    const result = await sql`
+    const db = getDatabase();
+    const result = await db`
       SELECT * FROM articles 
       ORDER BY published_at DESC 
       LIMIT ${limit}
-    `;
+    ` as QueryResult;
     return result.map(formatArticle);
   } catch (error) {
     console.error('Error getting latest articles:', error);
@@ -77,12 +92,13 @@ export async function getLatestArticles(limit = 10): Promise<Article[]> {
 
 export async function getFeaturedArticles(limit = 5): Promise<Article[]> {
   try {
-    const result = await sql`
+    const db = getDatabase();
+    const result = await db`
       SELECT * FROM articles 
       WHERE is_featured = true 
       ORDER BY published_at DESC 
       LIMIT ${limit}
-    `;
+    ` as QueryResult;
     return result.map(formatArticle);
   } catch (error) {
     console.error('Error getting featured articles:', error);
@@ -92,12 +108,13 @@ export async function getFeaturedArticles(limit = 5): Promise<Article[]> {
 
 export async function getArticlesByCategory(category: string, limit = 10): Promise<Article[]> {
   try {
-    const result = await sql`
+    const db = getDatabase();
+    const result = await db`
       SELECT * FROM articles 
       WHERE category = ${category} 
       ORDER BY published_at DESC 
       LIMIT ${limit}
-    `;
+    ` as QueryResult;
     return result.map(formatArticle);
   } catch (error) {
     console.error('Error getting articles by category:', error);
@@ -107,7 +124,8 @@ export async function getArticlesByCategory(category: string, limit = 10): Promi
 
 export async function incrementViews(id: string): Promise<void> {
   try {
-    await sql`UPDATE articles SET views = views + 1 WHERE id = ${id}`;
+    const db = getDatabase();
+    await db`UPDATE articles SET views = views + 1 WHERE id = ${id}`;
   } catch (error) {
     console.error('Error incrementing views:', error);
   }
@@ -115,7 +133,8 @@ export async function incrementViews(id: string): Promise<void> {
 
 export async function articleExists(sourceUrl: string): Promise<boolean> {
   try {
-    const result = await sql`SELECT id FROM articles WHERE source_url = ${sourceUrl} LIMIT 1`;
+    const db = getDatabase();
+    const result = await db`SELECT id FROM articles WHERE source_url = ${sourceUrl} LIMIT 1` as QueryResult;
     return result.length > 0;
   } catch (error) {
     console.error('Error checking article existence:', error);
@@ -125,7 +144,8 @@ export async function articleExists(sourceUrl: string): Promise<boolean> {
 
 export async function getAllArticles(): Promise<Article[]> {
   try {
-    const result = await sql`SELECT * FROM articles ORDER BY published_at DESC`;
+    const db = getDatabase();
+    const result = await db`SELECT * FROM articles ORDER BY published_at DESC` as QueryResult;
     return result.map(formatArticle);
   } catch (error) {
     console.error('Error getting all articles:', error);
@@ -135,7 +155,8 @@ export async function getAllArticles(): Promise<Article[]> {
 
 export async function getArticlesCount(): Promise<number> {
   try {
-    const result = await sql`SELECT COUNT(*) as count FROM articles`;
+    const db = getDatabase();
+    const result = await db`SELECT COUNT(*) as count FROM articles` as QueryResult<{count: number}>;
     return result[0]?.count || 0;
   } catch (error) {
     console.error('Error getting articles count:', error);
